@@ -172,23 +172,51 @@
       chatSend.disabled = true;
       const typing = addChatMessage('', 'assistant');
       typing.setAttribute('aria-label', 'Assistant is typing');
-        const loader = document.createElement('span');
-        loader.className = 'chat-typing';
-        loader.setAttribute('aria-hidden', 'true');
-        for (let i = 0; i < 3; i += 1) loader.append(document.createElement('i'));
-        typing.append(loader);
+      const loader = document.createElement('span');
+      loader.className = 'chat-typing';
+      loader.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < 3; i += 1) loader.append(document.createElement('i'));
+      typing.append(loader);
       try {
         const response = await fetch(chatApiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message })
         });
-        const data = await response.json();
-        if (!response.ok || typeof data.reply !== 'string') throw new Error('Chat request failed');
-        typing.textContent = data.reply;
+        if (!response.ok || !response.body) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.reply || 'Chat request failed');
+        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let reply = '';
+        const appendEvent = line => {
+          if (!line.startsWith('data:')) return;
+          try {
+            const data = JSON.parse(line.slice(5).trim());
+            const text = data.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('');
+            if (text) {
+              reply += text;
+              typing.textContent = reply;
+              typing.removeAttribute('aria-label');
+              chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+          } catch {}
+        };
+        while (true) {
+          const { done, value } = await reader.read();
+          buffer += decoder.decode(value, { stream: !done });
+          const lines = buffer.split(/\r?\n/);
+          buffer = lines.pop();
+          lines.forEach(appendEvent);
+          if (done) break;
+        }
+        if (buffer) appendEvent(buffer);
+        if (!reply) throw new Error('Sorry, I could not prepare a response. Please call a branch directly.');
         typing.removeAttribute('aria-label');
-      } catch {
-        typing.textContent = 'Sorry, I could not connect right now. For help, please call a branch directly. For emergencies, call Kauswagan at 0916 687 5958.';
+      } catch (error) {
+        typing.textContent = error.message || 'Sorry, I could not connect right now. For help, please call a branch directly. For emergencies, call Kauswagan at 0916 687 5958.';
       } finally {
         chatHistory.scrollTop = chatHistory.scrollHeight;
         chatSend.disabled = false;
