@@ -9,6 +9,7 @@ function mockResponse() {
     setHeader(name, value) { this.headers[name] = value; },
     status(code) { this.statusCode = code; return this; },
     json(body) { this.body = body; return this; },
+    write(chunk) { (this.chunks ||= []).push(Buffer.from(chunk)); return true; },
     end() { this.ended = true; return this; }
   };
 }
@@ -19,21 +20,22 @@ test('chat forwards a bounded message with clinic emergency instructions and ret
   const oldFetch = global.fetch;
   process.env.GEMINI_API_KEY = 'test-key';
   global.fetch = async (url, options) => {
-    assert.match(url, /models\/gemini-3\.8-flash:generateContent\?key=test-key$/);
+    assert.match(url, /models\/gemini-3\.8-flash:streamGenerateContent\?key=test-key&alt=sse$/);
     const payload = JSON.parse(options.body);
     assert.equal(payload.contents[0].parts[0].text, 'Emergency after 6 PM');
     assert.match(payload.systemInstruction.parts[0].text, /You are Jacko/);
     assert.match(payload.systemInstruction.parts[0].text, /Never provide, generate, or suggest prescription drug names/);
     assert.match(payload.systemInstruction.parts[0].text, /difficulty breathing, seizures, collapse, or suspected parvo/);
     assert.match(payload.systemInstruction.parts[0].text, /Cash, GCash, Maya, and major bank transfers/);
-    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: 'Please call Kauswagan.' }] } }] }) };
+    return new Response('data: {"candidates":[{"content":{"parts":[{"text":"Please call Kauswagan."}]}}]}\n\n');
   };
 
   try {
     const res = mockResponse();
     await handler({ method: 'POST', headers: { origin: 'https://baldonadovetclinic.vercel.app', 'x-forwarded-for': 'test-client-1' }, body: { message: ' Emergency after 6 PM ' } }, res);
     assert.equal(res.statusCode, 200);
-    assert.deepEqual(res.body, { reply: 'Please call Kauswagan.' });
+    assert.equal(Buffer.concat(res.chunks).toString(), 'data: {"candidates":[{"content":{"parts":[{"text":"Please call Kauswagan."}]}}]}\n\n');
+    assert.equal(res.headers['Content-Type'], 'text/event-stream; charset=utf-8');
     assert.equal(res.headers['Access-Control-Allow-Origin'], 'https://baldonadovetclinic.vercel.app');
   } finally {
     global.fetch = oldFetch;
@@ -118,7 +120,7 @@ test('chat truncates forwarded messages to 300 characters', async () => {
   global.fetch = async (_url, options) => {
     const payload = JSON.parse(options.body);
     assert.equal(payload.contents[0].parts[0].text.length, 300);
-    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: 'ok' }] } }] }) };
+    return new Response('data: {"candidates":[{"content":{"parts":[{"text":"ok"}]}}]}\n\n');
   };
   try {
     const res = mockResponse();
