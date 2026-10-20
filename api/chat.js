@@ -29,25 +29,50 @@ CLINIC POLICIES & FEES
 EMERGENCY & ESCALATION
 - If an owner describes urgent or critical symptoms such as severe trauma or a hit-by-car incident, active bleeding, difficulty breathing, seizures, collapse, or suspected parvo, immediately advise them to call 0916 687 5958 or proceed directly to the 24-hour Kauswagan Branch. Do not delay this advice with follow-up questions.`;
 
-const DEFAULT_ORIGINS = ['https://boks-michael.github.io', 'https://baldonadovetclinic.vercel.app'];
+const ALLOWED_ORIGINS = new Set(['https://baldonadovetclinic.vercel.app', 'http://localhost:3000']);
+const RATE_LIMIT = new Map();
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 10;
+
+function isRateLimited(ip, now = Date.now()) {
+  let bucket = RATE_LIMIT.get(ip);
+  if (!bucket || now - bucket.start >= RATE_WINDOW_MS) {
+    if (RATE_LIMIT.size >= 5_000) {
+      for (const [key, value] of RATE_LIMIT) {
+        if (now - value.start >= RATE_WINDOW_MS) RATE_LIMIT.delete(key);
+      }
+      if (RATE_LIMIT.size >= 5_000) return true;
+    }
+    bucket = { start: now, count: 0 };
+    RATE_LIMIT.set(ip, bucket);
+  }
+  bucket.count += 1;
+  return bucket.count > RATE_LIMIT_MAX;
+}
 
 function send(res, status, body) {
   return res.status(status).json(body);
 }
 
 export default async function handler(req, res) {
-  const allowedOrigins = [...DEFAULT_ORIGINS, ...(process.env.CHAT_ALLOWED_ORIGIN || '')
-    .split(',').map(origin => origin.trim()).filter(Boolean)];
   const origin = req.headers.origin;
   res.setHeader('Vary', 'Origin');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Cache-Control', 'no-store');
 
-  if (origin && !allowedOrigins.includes(origin)) return send(res, 403, { reply: 'This site cannot use the chat service.' });
-  res.setHeader('Access-Control-Allow-Origin', origin || allowedOrigins[0]);
+  if (!ALLOWED_ORIGINS.has(origin)) return send(res, 403, { reply: 'This site cannot use the chat service.' });
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return send(res, 405, { reply: 'Use POST to send a chat message.' });
+
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const ip = (typeof forwardedFor === 'string' && forwardedFor.split(',').at(-1).trim()) || req.socket?.remoteAddress || 'unknown';
+  if (isRateLimited(ip)) {
+    res.setHeader('Retry-After', '60');
+    return send(res, 429, { reply: 'Too many messages. Please wait a minute and try again.' });
+  }
+
   if (!process.env.GEMINI_API_KEY) return send(res, 503, { reply: 'The chat assistant is not configured yet. Please call a branch for help.' });
 
   let body = req.body;
@@ -56,9 +81,9 @@ export default async function handler(req, res) {
     try { body = JSON.parse(body); }
     catch { return send(res, 400, { reply: 'Please send a valid chat message.' }); }
   }
-  const message = typeof body?.message === 'string' ? body.message.trim() : '';
+  if (typeof body?.message !== 'string') return send(res, 400, { reply: 'Please enter a message.' });
+  const message = body.message.trim().slice(0, 300);
   if (!message) return send(res, 400, { reply: 'Please enter a message.' });
-  if (message.length > 2000) return send(res, 400, { reply: 'Please keep your message under 2,000 characters.' });
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`;
