@@ -164,6 +164,14 @@
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !chatPanel.hidden) setChatOpen(false);
     });
+    const connectionErrorReply = () => {
+      const hour = Number(new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Manila', hour: '2-digit', hourCycle: 'h23'
+      }).format(new Date()));
+      return hour < 8 || hour >= 18
+        ? 'Sorry, I could not connect right now. For emergencies, call Kauswagan at 0916 687 5958.'
+        : 'Sorry, I could not connect right now. For help, please call any branch directly.';
+    };
     const sendChatMessage = async text => {
       const message = text.trim();
       if (!message || chatSend.disabled) return;
@@ -215,8 +223,8 @@
         if (buffer) appendEvent(buffer);
         if (!reply) throw new Error('Sorry, I could not prepare a response. Please call a branch directly.');
         typing.removeAttribute('aria-label');
-      } catch (error) {
-        typing.textContent = error.message || 'Sorry, I could not connect right now. For help, please call a branch directly. For emergencies, call Kauswagan at 0916 687 5958.';
+      } catch {
+        typing.textContent = connectionErrorReply();
       } finally {
         chatHistory.scrollTop = chatHistory.scrollHeight;
         chatSend.disabled = false;
@@ -233,4 +241,4 @@
   </script>
 </body>
 </html>
-
+
