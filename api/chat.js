@@ -86,7 +86,7 @@ export default async function handler(req, res) {
   if (!message) return send(res, 400, { reply: 'Please enter a message.' });
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}&alt=sse`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -96,16 +96,25 @@ export default async function handler(req, res) {
         generationConfig: { temperature: 0.3, maxOutputTokens: 350 }
       })
     });
-    if (!response.ok) {
+    if (!response.ok || !response.body) {
       console.error('Gemini request failed with status', response.status);
       return send(res, 502, { reply: 'Sorry, the chat assistant is having trouble. Please call a branch directly. For emergencies, call Kauswagan at 0916 687 5958.' });
     }
-    const result = await response.json();
-    const reply = result.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
-    if (!reply) return send(res, 502, { reply: 'Sorry, I could not prepare a response. Please call a branch directly.' });
-    return send(res, 200, { reply });
+    res.status(200);
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+    const reader = response.body.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(value);
+    }
+    return res.end();
   } catch (error) {
     console.error('Gemini request failed:', error.message);
+    if (res.headersSent) return res.destroy(error);
     return send(res, 502, { reply: 'Sorry, the chat assistant is unavailable right now. For emergencies, call Kauswagan at 0916 687 5958.' });
   }
 }
