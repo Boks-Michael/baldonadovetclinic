@@ -23,6 +23,7 @@ test('chat forwards a bounded message with clinic emergency instructions and ret
     assert.match(url, /models\/gemini-3\.8-flash:streamGenerateContent\?key=test-key&alt=sse$/);
     const payload = JSON.parse(options.body);
     assert.equal(payload.contents[0].parts[0].text, 'Emergency after 6 PM');
+    assert.equal(payload.generationConfig.thinkingConfig.thinkingLevel, 'low');
     assert.match(payload.systemInstruction.parts[0].text, /You are Jacko/);
     assert.match(payload.systemInstruction.parts[0].text, /Never provide, generate, or suggest prescription drug names/);
     assert.match(payload.systemInstruction.parts[0].text, /difficulty breathing, seizures, collapse, or suspected parvo/);
