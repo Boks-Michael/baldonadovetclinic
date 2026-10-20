@@ -64,6 +64,8 @@
     footer{background:#0b2d53;border-top-color:#2b5b87}.footer-brand small,.copyright{color:#bed3e9}.socials a{border-color:#49749a;background:#ffffff12;color:#eef7ff}.socials a:hover{background:#ffffff20;border-color:#76d7f5}.socials .facebook-link{color:#8dc9ff!important}
     .btn:focus-visible,.nav a:focus-visible,.menu-toggle:focus-visible,.branch a:focus-visible,.socials a:focus-visible{outline:2px solid #1887c9;outline-offset:3px}
     @media(max-width:680px){.nav-links{background:#f9fcff;border-color:#cfdfef}.nav-links a:hover{background:#eaf4ff}}
+    .chat-toggle{position:fixed;right:22px;bottom:22px;z-index:30;width:62px;height:62px;display:grid;place-items:center;border:1px solid #a2f2cb;border-radius:50%;background:linear-gradient(145deg,#27c782,#0b8c62);color:#fff;font-size:27px;box-shadow:0 10px 32px #08754e55;cursor:pointer;transition:transform .2s,box-shadow .2s}.chat-toggle:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 38px #08754e77}.chat-panel[hidden]{display:none!important}.chat-panel{position:fixed;right:22px;bottom:96px;z-index:30;width:min(390px,calc(100vw - 28px));height:min(620px,calc(100dvh - 120px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #45675b;border-radius:22px;background:rgba(14,29,35,.97);color:#eef8f3;box-shadow:0 25px 80px #04150fc9;backdrop-filter:blur(20px)}.chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px;background:linear-gradient(125deg,#183c34,#17344b);border-bottom:1px solid #ffffff1a}.chat-heading{display:flex;align-items:center;gap:11px}.chat-avatar{width:38px;height:38px;display:grid;place-items:center;border:1px solid #62e1a1;border-radius:13px;background:#1c5848;font-size:19px}.chat-header strong{display:block;font-family:Manrope,sans-serif;font-size:14px}.chat-header small{display:block;margin-top:4px;color:#a8c9b9;font-size:11px}.chat-close{width:34px;height:34px;border:0;border-radius:9px;background:#ffffff12;color:#e9f7ef;font-size:22px;cursor:pointer}.chat-note{padding:9px 16px;border-bottom:1px solid #ffffff10;color:#a8c0b6;font-size:10px;line-height:1.5}.chat-history{flex:1;min-height:80px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:14px;background:radial-gradient(ellipse at 90% 0,#1e513817,transparent 54%)}.chat-message{max-width:88%;padding:10px 12px;border:1px solid #ffffff12;border-radius:14px;background:#20333a;color:#e6f2ec;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.chat-message.user{align-self:flex-end;border-color:#2cb87955;border-bottom-right-radius:4px;background:#146346;color:#f2fff8}.chat-message.assistant{align-self:flex-start;border-bottom-left-radius:4px}.chat-typing{display:inline-flex;align-items:center;gap:4px;min-width:52px}.chat-typing i{width:5px;height:5px;border-radius:50%;background:#a9eac6;animation:chatBounce .9s ease-in-out infinite alternate}.chat-typing i:nth-child(2){animation-delay:.18s}.chat-typing i:nth-child(3){animation-delay:.36s}.chat-tools{padding:10px 12px 8px;border-top:1px solid #ffffff10}.chat-suggestions{display:flex;gap:6px;overflow:auto;padding:0 0 9px;scrollbar-width:thin}.chat-suggestions button{flex:none;padding:7px 9px;border:1px solid #517465;border-radius:999px;background:#183a31;color:#c9f5dd;font-size:10px;font-weight:700;cursor:pointer}.chat-suggestions button:hover{border-color:#69dba1;background:#205642}.chat-form{display:flex;gap:8px}.chat-form input{min-width:0;flex:1;height:43px;padding:0 12px;border:1px solid #45605a;border-radius:12px;outline:none;background:#0d1e22;color:#f4fbf7;font:inherit;font-size:13px}.chat-form input:focus{border-color:#62d99e;box-shadow:0 0 0 3px #62d99e24}.chat-form input::placeholder{color:#819b90}.chat-send{padding:0 14px;border:0;border-radius:12px;background:#28ad72;color:#fff;font-size:12px;font-weight:800;cursor:pointer}.chat-send:hover{background:#38c585}.chat-send:disabled{opacity:.55;cursor:wait}.chat-toggle:focus-visible,.chat-close:focus-visible,.chat-suggestions button:focus-visible,.chat-send:focus-visible{outline:2px solid #85f2bd;outline-offset:3px}.chat-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@keyframes chatBounce{to{transform:translateY(-4px);opacity:.55}}@media(max-width:480px){.chat-toggle{right:15px;bottom:15px;width:58px;height:58px}.chat-panel{right:14px;bottom:83px;height:min(72dvh,620px);border-radius:19px}.chat-header{padding:14px}.chat-history{padding:12px}}
+    @media(prefers-reduced-motion:reduce){.chat-toggle,.chat-typing i{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body>
@@ -99,6 +101,17 @@
       </div></div></section>
   </main>
   <footer><div class="wrap"><div class="footer-inner"><a class="footer-brand" href="#home"><img src="assets/LOGO%201.jpg" alt=""><span><b>Baldonado Veterinary Clinic</b><small>Macasandig · Kauswagan · Uptown</small></span></a><div class="socials"><a class="facebook-link" href="https://www.facebook.com/profile.php?id=61570374178591" target="_blank" rel="noopener noreferrer" aria-label="Baldonado Veterinary Clinic on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8.2h2.8l.4-3.2h-3.2V7.5c0-.9.3-1.6 1.6-1.6H17V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.5v3.2h2.8V21h3.4z"/></svg></a><a href="#branches">Call a branch ↗</a></div></div><div class="copyright">© <span id="year"></span> Baldonado Veterinary Clinic. Caring for CDO’s pets, one paw at a time.</div></div></footer>
+  <div class="chat-widget" id="chat-widget" data-chat-endpoint="/api/chat">
+    <section class="chat-panel" id="chat-panel" role="dialog" aria-label="Baldonado Vet AI Assistant" aria-hidden="true" hidden>
+      <header class="chat-header"><div class="chat-heading"><span class="chat-avatar" aria-hidden="true">🐾</span><div><strong>Baldonado Vet AI Assistant</strong><small>Clinic information · Cagayan de Oro</small></div></div><button class="chat-close" type="button" aria-label="Close chat">×</button></header>
+      <div class="chat-note">Clinic information only. For emergencies after 6:00 PM, call or proceed to Kauswagan.</div>
+      <div class="chat-history" id="chat-history" role="log" aria-live="polite" aria-relevant="additions"><div class="chat-message assistant">Hi! I can help with branch hours, services, and contacts. How can we help your pet?</div></div>
+      <div class="chat-tools"><div class="chat-suggestions" aria-label="Suggested questions"><button type="button" data-chat-suggestion="What are Kauswagan's 24/7 service hours?">Kauswagan 24/7 Hours</button><button type="button" data-chat-suggestion="How do I book a home service?">Book Home Service</button><button type="button" data-chat-suggestion="Do you offer kapon and vaccines?">Kapon &amp; Vaccines</button></div>
+        <form class="chat-form" id="chat-form"><label class="chat-sr-only" for="chat-input">Ask Baldonado Veterinary Clinic</label><input id="chat-input" name="message" type="text" maxlength="2000" placeholder="Ask about our clinic…" autocomplete="off" required><button class="chat-send" type="submit">Send</button></form>
+      </div>
+    </section>
+    <button class="chat-toggle" id="chat-toggle" type="button" aria-label="Open chat assistant" aria-expanded="false" aria-controls="chat-panel">💬</button>
+  </div>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
     const menuButton = document.querySelector('.menu-toggle');
@@ -121,5 +134,70 @@
       if (event.key === 'Escape' && menu.classList.contains('open')) menuButton.click();
     });
   </script>
+  <script>
+    const chatPanel = document.getElementById('chat-panel');
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatHistory = document.getElementById('chat-history');
+    const chatApiUrl = document.getElementById('chat-widget').dataset.chatEndpoint;
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = chatForm.querySelector('.chat-send');
+    const chatClose = chatPanel.querySelector('.chat-close');
+    const addChatMessage = (text, role) => {
+      const message = document.createElement('div');
+      message.className = `chat-message ${role}`;
+      message.textContent = text;
+      chatHistory.append(message);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+      return message;
+    };
+    const setChatOpen = open => {
+      chatPanel.hidden = !open;
+      chatPanel.setAttribute('aria-hidden', String(!open));
+      chatToggle.setAttribute('aria-expanded', String(open));
+      chatToggle.setAttribute('aria-label', open ? 'Close chat assistant' : 'Open chat assistant');
+      if (open) chatInput.focus(); else chatToggle.focus();
+    };
+    chatToggle.addEventListener('click', () => setChatOpen(chatPanel.hidden));
+    chatClose.addEventListener('click', () => setChatOpen(false));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !chatPanel.hidden) setChatOpen(false);
+    });
+    const sendChatMessage = async text => {
+      const message = text.trim();
+      if (!message || chatSend.disabled) return;
+      addChatMessage(message, 'user');
+      chatInput.value = '';
+      chatSend.disabled = true;
+      const typing = addChatMessage('', 'assistant');
+      typing.setAttribute('aria-label', 'Assistant is typing');
+      typing.innerHTML = '<span class="chat-typing" aria-hidden="true"><i></i><i></i><i></i></span>';
+      try {
+        const response = await fetch(chatApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        const data = await response.json();
+        if (!response.ok || typeof data.reply !== 'string') throw new Error('Chat request failed');
+        typing.textContent = data.reply;
+        typing.removeAttribute('aria-label');
+      } catch {
+        typing.textContent = 'Sorry, I could not connect right now. For help, please call a branch directly. For emergencies, call Kauswagan at 0916 687 5958.';
+      } finally {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        chatSend.disabled = false;
+        chatInput.focus();
+      }
+    };
+    chatForm.addEventListener('submit', event => {
+      event.preventDefault();
+      sendChatMessage(chatInput.value);
+    });
+    chatPanel.querySelectorAll('[data-chat-suggestion]').forEach(button => {
+      button.addEventListener('click', () => sendChatMessage(button.dataset.chatSuggestion));
+    });
+  </script>
 </body>
 </html>
+
